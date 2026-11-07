@@ -42,8 +42,8 @@ function useCamera(videoRef: RefObject<HTMLVideoElement | null>, active: boolean
       setStatus('unavailable')
       setMessage(
         window.isSecureContext
-          ? 'This browser can’t open the camera. Upload a photo instead.'
-          : 'Camera access needs a secure (https or localhost) connection. Upload a photo instead.',
+          ? 'This browser can’t show a live camera preview. Tap the scan button to take a photo instead.'
+          : 'The live camera preview needs a secure (HTTPS) connection. Tap the scan button to take a photo instead.',
       )
       return
     }
@@ -72,13 +72,13 @@ function useCamera(videoRef: RefObject<HTMLVideoElement | null>, active: boolean
         if (cancelled) return
         if (err?.name === 'NotAllowedError' || err?.name === 'SecurityError') {
           setStatus('denied')
-          setMessage('Camera permission was denied. Upload a photo instead, or allow camera access in your browser settings.')
+          setMessage('Camera permission was denied. Tap the scan button to take a photo, or allow camera access in your browser settings.')
         } else if (err?.name === 'NotFoundError' || err?.name === 'OverconstrainedError') {
           setStatus('unavailable')
-          setMessage('No camera was found on this device. Upload a photo instead.')
+          setMessage('No live camera was found. Take or upload a photo instead.')
         } else {
           setStatus('error')
-          setMessage('The camera couldn’t start. Upload a photo instead.')
+          setMessage('The live camera couldn’t start. Tap the scan button to take a photo instead.')
         }
       })
     const video = videoRef.current
@@ -128,7 +128,8 @@ export function Camera() {
   const api = useApi()
   const session = useScanSession()
   const videoRef = useRef<HTMLVideoElement>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null) // gallery / file upload
+  const captureRef = useRef<HTMLInputElement>(null) // opens the phone's camera app; no HTTPS needed
   const runId = useRef(0)
 
   const [phase, setPhase] = useState<Phase>('camera')
@@ -223,7 +224,7 @@ export function Camera() {
   async function onTrigger() {
     if (phase !== 'camera') return
     if (camera.status !== 'live' || !videoRef.current) {
-      fileRef.current?.click()
+      captureRef.current?.click()
       return
     }
     try {
@@ -321,8 +322,8 @@ export function Camera() {
                     <>
                       <CameraIcon size={34} aria-hidden="true" />
                       <p>{camera.message}</p>
-                      <button type="button" className="btn btn-primary btn-sm" onClick={() => fileRef.current?.click()}>
-                        <ImagePlus size={16} aria-hidden="true" /> Upload a photo
+                      <button type="button" className="btn btn-primary btn-sm" onClick={() => captureRef.current?.click()}>
+                        <CameraIcon size={16} aria-hidden="true" /> Take a photo
                       </button>
                     </>
                   )}
@@ -344,7 +345,7 @@ export function Camera() {
           className="scan-trigger"
           onClick={onTrigger}
           disabled={phase !== 'camera'}
-          aria-label={camera.status === 'live' ? 'Take photo and scan' : 'Choose a photo to scan'}
+          aria-label={camera.status === 'live' ? 'Take photo and scan' : 'Take a photo to scan'}
         >
           {scanning ? <Spinner label="Scanning" /> : <ScanLine size={28} strokeWidth={2.2} aria-hidden="true" />}
         </button>
@@ -357,7 +358,7 @@ export function Camera() {
             ? camera.status === 'live'
               ? 'Center the front of the package in the frame'
               : cameraBlocked
-                ? 'Camera unavailable — upload a photo instead'
+                ? 'Tap the button to take a photo'
                 : ' '
             : ' '}
       </p>
@@ -381,10 +382,23 @@ export function Camera() {
         </button>
       </div>
       <input
+        ref={captureRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        hidden
+        aria-label="Take a photo with your camera"
+        onChange={(e) => {
+          void onFile(e.target.files?.[0])
+          e.target.value = ''
+        }}
+      />
+      <input
         ref={fileRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/*"
+        accept="image/*"
         hidden
+        aria-label="Upload a photo"
         onChange={(e) => {
           void onFile(e.target.files?.[0])
           e.target.value = ''
@@ -394,7 +408,7 @@ export function Camera() {
       <section className="next-steps" aria-labelledby="next-steps-title">
         <h2 id="next-steps-title">Next Steps</h2>
         <ul>
-          <li>Allow camera access when your browser asks, or upload a photo instead</li>
+          <li>Allow camera access when your browser asks, or take or upload a photo instead</li>
           <li>Place the product’s front label or barcode in the center of the frame</li>
           <li>root’d identifies it, you confirm, and we check it against your values</li>
         </ul>

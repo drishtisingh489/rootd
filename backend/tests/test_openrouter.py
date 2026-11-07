@@ -103,3 +103,36 @@ def test_parse_drops_invalid_candidates():
     assert len(parsed["candidates"]) == 1
     assert parsed["candidates"][0]["confidence"] == 0.0
     assert parsed["candidates"][0]["barcode"] is None
+
+
+def test_unconfigured_message_names_each_problem_variable():
+    with pytest.raises(orc.VisionUnavailable) as exc:
+        asyncio.run(orc.identify("data:image/jpeg;base64,AAAA",
+                                 replace(SETTINGS, openrouter_api_key="", openrouter_model="replace_with_model_id")))
+    assert str(exc.value) == "OPENROUTER_API_KEY is not set; OPENROUTER_MODEL still has a placeholder value"
+
+
+def test_placeholders_count_as_not_configured():
+    assert not replace(SETTINGS, openrouter_api_key="replace_with_team_key").openrouter_configured
+    assert not replace(SETTINGS, openrouter_model="<vision model>").openrouter_configured
+    assert SETTINGS.openrouter_configured
+
+
+def test_auth_error_reports_status_hint_and_message_with_key_redacted():
+    body = {"error": {"code": 401, "message": "No auth credentials found for key test-key / sk-or-v1-abc123"}}
+    with pytest.raises(orc.VisionError) as exc:
+        run(lambda _: httpx.Response(401, json=body))
+    msg = str(exc.value)
+    assert exc.value.status == 401
+    assert "HTTP 401" in msg and "OPENROUTER_API_KEY" in msg and "No auth credentials found" in msg
+    assert "test-key" not in msg and "abc123" not in msg
+
+
+def test_model_without_image_support_reports_provider_detail():
+    body = {"error": {"code": 404, "message": "No endpoints found that support image input",
+                      "metadata": {"raw": "model does not accept images"}}}
+    with pytest.raises(orc.VisionError) as exc:
+        run(lambda _: httpx.Response(404, json=body))
+    msg = str(exc.value)
+    assert "HTTP 404" in msg and "OPENROUTER_MODEL" in msg and "support image input" in msg
+    assert "model does not accept images" in msg

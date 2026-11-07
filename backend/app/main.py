@@ -1,5 +1,6 @@
 """root'd API. All /api routes except /api/health require an anonymous X-User-Id (see identity.py)."""
 
+import logging
 import re
 import time
 import uuid
@@ -19,9 +20,18 @@ from .catalog import normalize_preferences
 from .config import settings
 from .verdict import evaluate
 
+log = logging.getLogger("uvicorn.error")  # shows up in the normal uvicorn console output
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     db.init_db()
+    # Paths and true/false only: never log key or model values.
+    log.info("root'd config loaded from: %s", ", ".join(settings.env_files) or "no .env file found")
+    if settings.openrouter_configured:
+        log.info("OpenRouter photo identification: configured=true")
+    else:
+        log.warning("OpenRouter photo identification: configured=false (%s)", "; ".join(settings.openrouter_problems))
     yield
 
 
@@ -149,10 +159,12 @@ async def identify(request: Request, file: UploadFile = File(...), user: Current
         raise api_error(422, "invalid_image", str(exc))
     try:
         ident = await openrouter_client.identify(image_url, settings)
-    except openrouter_client.VisionUnavailable:
+    except openrouter_client.VisionUnavailable as exc:
         raise api_error(503, "vision_unavailable",
-                        "Photo identification isn't configured yet. Enter a barcode or product name, or try demo mode.")
+                        f"Photo identification isn't configured: {exc} (add it to .env and restart the backend). "
+                        "Meanwhile, enter a barcode or product name, or try a demo product.")
     except openrouter_client.VisionError as exc:
+        log.warning("OpenRouter identify failed: %s", exc)  # already redacted
         raise api_error(502, "vision_failed", f"{exc} You can enter a barcode or product name instead.")
     # The photo is only held in memory for this request; it is never written to disk or the database.
 

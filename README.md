@@ -45,7 +45,7 @@ cd frontend && npm run build && npm run lint      # type-check + production buil
 
 ## Configuration
 
-All settings live in the root `.env`.
+All settings live in the root `.env`. The backend also reads `backend/.env` if it exists, and its values take precedence. Placeholder values such as `replace_with_…` count as not set. On startup the backend logs which files it loaded and whether OpenRouter is configured, and `GET /api/health` returns `openrouter_configured: true/false`.
 
 | Sent to the browser (`VITE_*`) | Value |
 |---|---|

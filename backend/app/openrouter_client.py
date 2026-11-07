@@ -43,7 +43,50 @@ class VisionUnavailable(Exception):
 
 
 class VisionError(Exception):
-    """OpenRouter call failed or returned unusable output."""
+    """OpenRouter call failed or returned unusable output. The message never contains the API key."""
+
+    def __init__(self, message: str, status: int | None = None):
+        super().__init__(message)
+        self.status = status
+
+
+# What the usual OpenRouter failures mean, so the message says what to fix.
+STATUS_HINTS = {
+    400: "OpenRouter rejected the request; often the model ID is wrong or the model can't read images "
+         "(check OPENROUTER_MODEL)",
+    401: "OpenRouter rejected the API key (check OPENROUTER_API_KEY)",
+    402: "the OpenRouter account has no credits left",
+    403: "OpenRouter refused the request for this key or model",
+    404: "the model wasn't found or doesn't accept image input (check OPENROUTER_MODEL)",
+    408: "OpenRouter timed out",
+    429: "OpenRouter rate limit reached; wait a minute and try again",
+}
+
+
+def redact(text: str, api_key: str = "") -> str:
+    if api_key:
+        text = text.replace(api_key, "[redacted]")
+    return re.sub(r"sk-or-[A-Za-z0-9_-]+", "sk-or-[redacted]", text)
+
+
+def describe_error(resp: httpx.Response, api_key: str) -> str:
+    """HTTP status + plain-language hint + OpenRouter's own error message (redacted, trimmed)."""
+    detail = ""
+    try:
+        body = resp.json()
+    except ValueError:
+        body = None
+    err = body.get("error") if isinstance(body, dict) else None
+    if isinstance(err, dict):
+        detail = str(err.get("message") or "")
+        meta = err.get("metadata")
+        if isinstance(meta, dict) and isinstance(meta.get("raw"), str):
+            detail = f"{detail} | provider: {meta['raw']}"
+    elif resp.text:
+        detail = resp.text
+    detail = redact(" ".join(detail.split()), api_key)[:300]
+    hint = STATUS_HINTS.get(resp.status_code, "OpenRouter returned an error")
+    return f"OpenRouter returned HTTP {resp.status_code}: {hint}." + (f" OpenRouter said: {detail}" if detail else "")
 
 
 class InvalidImage(ValueError):
@@ -141,7 +184,7 @@ async def identify(
     attempts: int = 3,
 ) -> dict:
     if not settings.openrouter_configured:
-        raise VisionUnavailable("OpenRouter is not configured (OPENROUTER_API_KEY / OPENROUTER_MODEL).")
+        raise VisionUnavailable("; ".join(settings.openrouter_problems))
     payload = {
         "model": settings.openrouter_model,
         "messages": [{
@@ -174,7 +217,7 @@ async def identify(
                 if resp.status_code == 200:
                     body = resp.json()
                     if body.get("error"):
-                        raise VisionError(f"OpenRouter error: {str(body['error'].get('message', ''))[:200]}")
+                        raise VisionError(describe_error(resp, settings.openrouter_api_key), status=200)
                     try:
                         content = body["choices"][0]["message"]["content"]
                     except (KeyError, IndexError, TypeError):
@@ -183,8 +226,8 @@ async def identify(
                         content = "".join(p.get("text", "") for p in content if isinstance(p, dict))
                     return parse_identification(_extract_json(content or ""))
                 if resp.status_code not in RETRY_STATUS:
-                    raise VisionError(f"OpenRouter returned HTTP {resp.status_code}.")
-                last_error = f"HTTP {resp.status_code}"
+                    raise VisionError(describe_error(resp, settings.openrouter_api_key), status=resp.status_code)
+                last_error = describe_error(resp, settings.openrouter_api_key)
             if attempt < attempts - 1:
                 await asyncio.sleep(0.6 * 2**attempt)
-    raise VisionError(f"OpenRouter request failed after {attempts} attempts: {last_error}.")
+    raise VisionError(f"OpenRouter request failed after {attempts} attempts. Last error: {last_error}")

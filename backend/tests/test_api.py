@@ -99,4 +99,10 @@ def test_identify_without_openrouter_is_recoverable(client):
     resp = client.post("/api/scans/identify", headers=user_headers(),
                        files={"file": ("p.jpg", buf.getvalue(), "image/jpeg")})
     assert resp.status_code == 503
-    assert resp.json()["error"]["code"] == "vision_unavailable"
+    err = resp.json()["error"]
+    assert err["code"] == "vision_unavailable"
+    assert "OPENROUTER_API_KEY is not set" in err["message"] and "OPENROUTER_MODEL is not set" in err["message"]
+
+
+def test_health_reports_openrouter_as_boolean_only(client):
+    assert client.get("/api/health").json() == {"status": "ok", "openrouter_configured": False}
