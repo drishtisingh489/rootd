@@ -1,0 +1,153 @@
+{
+  "levels": {
+    "strictness": [
+      { "id": "preference", "label": "Preference" },
+      { "id": "strict", "label": "Strict / must avoid" }
+    ],
+    "importance": [
+      { "id": "important", "label": "Important" },
+      { "id": "must_have", "label": "Must-have" }
+    ]
+  },
+  "categories": [
+    {
+      "id": "allergies_diets",
+      "title": "Allergies & Diets",
+      "hint": "Allergies, diets, religious requirements and nutrition goals",
+      "icon": "wheat",
+      "groups": [
+        {
+          "id": "allergens",
+          "title": "Allergies",
+          "note": "Allergies are always treated as hard restrictions.",
+          "level_type": null,
+          "allow_other": true,
+          "toggle": {
+            "id": "allergy_cross_contact",
+            "label": "Also flag possible cross-contact (“may contain”)"
+          },
+          "options": [
+            { "id": "milk", "label": "Milk" },
+            { "id": "eggs", "label": "Eggs" },
+            { "id": "fish", "label": "Fish" },
+            { "id": "shellfish", "label": "Shellfish" },
+            { "id": "tree_nuts", "label": "Tree nuts" },
+            { "id": "peanuts", "label": "Peanuts" },
+            { "id": "wheat", "label": "Wheat" },
+            { "id": "soy", "label": "Soy" },
+            { "id": "sesame", "label": "Sesame" }
+          ]
+        },
+        {
+          "id": "dietary_patterns",
+          "title": "Dietary patterns",
+          "level_type": "strictness",
+          "allow_other": true,
+          "options": [
+            { "id": "vegetarian", "label": "Vegetarian" },
+            { "id": "vegan", "label": "Vegan" },
+            { "id": "pescatarian", "label": "Pescatarian" },
+            { "id": "omnivore", "label": "Omnivore" },
+            { "id": "keto", "label": "Keto" },
+            { "id": "mediterranean", "label": "Mediterranean" }
+          ]
+        },
+        {
+          "id": "dietary_restrictions",
+          "title": "Dietary restrictions",
+          "level_type": "strictness",
+          "allow_other": true,
+          "options": [
+            { "id": "gluten_free", "label": "Gluten-free" },
+            { "id": "dairy_free", "label": "Dairy-free" },
+            { "id": "egg_free", "label": "Egg-free" },
+            { "id": "nut_free", "label": "Nut-free" },
+            { "id": "soy_free", "label": "Soy-free" },
+            { "id": "pork_free", "label": "Pork-free" },
+            { "id": "alcohol_free", "label": "Alcohol-free" }
+          ]
+        },
+        {
+          "id": "religious_dietary_requirements",
+          "title": "Religious dietary requirements (optional)",
+          "note": "These describe food requirements only, not your religion. You can edit or remove them anytime.",
+          "level_type": "strictness",
+          "allow_other": true,
+          "options": [
+            { "id": "halal", "label": "Halal" },
+            { "id": "kosher", "label": "Kosher" },
+            { "id": "hindu_vegetarian", "label": "Hindu vegetarian" },
+            { "id": "jain", "label": "Jain" },
+            { "id": "prefer_not_to_say", "label": "Prefer not to say", "exclusive": true }
+          ]
+        },
+        {
+          "id": "nutrition_goals",
+          "title": "Nutrition goals",
+          "level_type": null,
+          "allow_other": true,
+          "options": [
+            { "id": "high_protein", "label": "High protein" },
+            { "id": "high_fiber", "label": "High fiber" },
+            { "id": "lower_added_sugar", "label": "Lower added sugar" },
+            { "id": "lower_sodium", "label": "Lower sodium" },
+            { "id": "balanced_nutrition", "label": "Balanced nutrition" },
+            { "id": "minimally_processed", "label": "Minimally processed" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ethical_values",
+      "title": "Ethical Values",
+      "hint": "How your food is produced and who produces it",
+      "icon": "heart-handshake",
+      "groups": [
+        {
+          "id": "ethical_values",
+          "title": "Ethical values",
+          "level_type": "importance",
+          "allow_other": true,
+          "options": [
+            { "id": "animal_welfare", "label": "Animal welfare" },
+            { "id": "cruelty_free", "label": "Cruelty-free production" },
+            { "id": "fair_trade", "label": "Fair trade" },
+            { "id": "fair_labor", "label": "Fair labor practices" },
+            { "id": "organic", "label": "Organic preference" },
+            { "id": "locally_sourced", "label": "Locally sourced" },
+            { "id": "ingredient_transparency", "label": "Ingredient transparency" },
+            { "id": "minimal_processing", "label": "Minimal processing" },
+            { "id": "responsible_farming", "label": "Responsible farming" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "environmental_priorities",
+      "title": "Environmental Priorities",
+      "hint": "Sustainability and environmental impact",
+      "icon": "leaf",
+      "groups": [
+        {
+          "id": "environmental_priorities",
+          "title": "Environmental priorities",
+          "note": "Environmental estimates and sourcing claims depend on the evidence available for each product.",
+          "level_type": "importance",
+          "allow_other": true,
+          "options": [
+            { "id": "lower_carbon", "label": "Lower carbon footprint" },
+            { "id": "lower_water", "label": "Lower water usage" },
+            { "id": "minimal_packaging", "label": "Minimal packaging" },
+            { "id": "recyclable_packaging", "label": "Recyclable packaging" },
+            { "id": "less_plastic", "label": "Less plastic" },
+            { "id": "sustainable_sourcing", "label": "Sustainable sourcing" },
+            { "id": "reduced_deforestation", "label": "Reduced deforestation risk" },
+            { "id": "biodiversity", "label": "Biodiversity protection" },
+            { "id": "reduced_food_waste", "label": "Reduced food waste" },
+            { "id": "regenerative", "label": "Regenerative agriculture" }
+          ]
+        }
+      ]
+    }
+  ]
+}

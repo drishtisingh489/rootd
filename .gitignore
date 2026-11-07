@@ -1,0 +1,32 @@
+# Secrets: every env file at any depth. Only the blank templates are tracked.
+.env
+.env.*
+*.env
+backend/.env
+frontend/.env
+!.env.example
+!**/.env.example
+
+# Local data and user uploads
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Node / build output
+node_modules/
+dist/
+build/
+
+# OS / editors
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
