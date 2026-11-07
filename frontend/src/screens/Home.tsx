@@ -5,7 +5,7 @@ import { errorMessage, useApi } from '../api'
 import { Avatar } from '../components/Avatar'
 import { ErrorState, PageHeader } from '../components/Chrome'
 import { ScanCard } from '../components/ScanCard'
-import { firstName, greeting, productTitle } from '../lib/format'
+import { greeting, productTitle } from '../lib/format'
 import { VERDICT_META } from '../lib/status'
 import { useLoadedProfile } from '../state/ProfileContext'
 import { useScanSession } from '../state/ScanSession'
@@ -104,7 +104,7 @@ function EmptyScans() {
 export function Home() {
   const profile = useLoadedProfile()
   const { scans, error, retry } = useScans()
-  const name = firstName(profile.display_name)
+  const name = profile.display_name.trim() // exactly what the user asked to be called
 
   return (
     <main className="screen tab-screen home">
@@ -113,8 +113,14 @@ export function Home() {
           <Avatar name={profile.display_name} email={profile.email} src={profile.profile_image_url} size={52} />
         </Link>
         <div className="home-greeting">
-          <p>{greeting()},</p>
-          <h1>{name || 'there'}</h1>
+          {name ? (
+            <>
+              <p>{greeting()},</p>
+              <h1>{name}</h1>
+            </>
+          ) : (
+            <h1>{greeting()}</h1>
+          )}
         </div>
       </header>
 
@@ -125,7 +131,7 @@ export function Home() {
           <ScanLine size={34} strokeWidth={2.2} aria-hidden="true" />
         </span>
         <span className="scan-hero-text">
-          <span className="scan-hero-title">Scan Ingredient</span>
+          <span className="scan-hero-title">Scan Item</span>
           <span className="scan-hero-sub">Check how food aligns with your values.</span>
         </span>
         <ChevronRight size={24} className="scan-hero-chevron" aria-hidden="true" />

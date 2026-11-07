@@ -7,6 +7,7 @@ import { Avatar } from '../components/Avatar'
 import { Notice, PageHeader, Spinner } from '../components/Chrome'
 import { Sheet } from '../components/Sheet'
 import { totalSelected } from '../lib/catalog'
+import { validateName } from '../lib/displayName'
 import { avatarDataUrl } from '../lib/image'
 import { useLoadedProfile, useProfile } from '../state/ProfileContext'
 import { useScanSession } from '../state/ScanSession'
@@ -152,7 +153,8 @@ export function EditProfile() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     const next: Record<string, string> = {}
-    if (name.trim().length > 60) next.name = 'Keep your name under 60 characters.'
+    const nameError = validateName(name)
+    if (nameError) next.name = nameError
     if (phone.trim() && !PHONE_RE.test(phone.trim())) next.phone = 'Use digits, spaces, +, -, ( and ) only.'
     if (email.trim() && !EMAIL_RE.test(email.trim())) next.email = 'Enter a valid email address, or leave it blank.'
     setErrors(next)

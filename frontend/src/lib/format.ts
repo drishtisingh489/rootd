@@ -7,10 +7,6 @@ export function greeting(now = new Date()): string {
   return 'Good evening'
 }
 
-export function firstName(displayName: string | null | undefined): string {
-  return (displayName ?? '').trim().split(/\s+/)[0] ?? ''
-}
-
 export function initials(displayName: string | null | undefined, email?: string | null): string {
   const source = (displayName || email || '').trim()
   if (!source) return '🌱'

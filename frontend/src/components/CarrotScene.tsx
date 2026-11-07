@@ -49,9 +49,22 @@ const SOIL_EDGE = (() => {
   return `${d} L400 220 Z`
 })()
 
+/*
+ * Two layers so the carrot is never cropped at any screen shape:
+ *   - soil: fills the full width (extra soil is trimmed at the bottom/sides, never the lumpy ground line)
+ *   - plant: the carrot and its leaves always fit the scene height, sitting exactly on the ground line.
+ * Plant viewBox is y 16→220 (204 units); the ground line is y≈116, i.e. 104/204 of the height from the bottom.
+ */
 export function CarrotScene() {
   return (
-    <svg className="carrot-scene" viewBox="0 0 400 220" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <div className="carrot-scene" aria-hidden="true">
+      <svg className="carrot-soil" viewBox="0 104 400 116" preserveAspectRatio="xMidYMin slice">
+        <path d={SOIL_EDGE} fill="#332C1A" />
+        {SPECKS.map(([x, y, r], i) => (
+          <circle key={i} cx={x} cy={y} r={r} fill={i % 3 ? '#5C4A2E' : '#7A6341'} />
+        ))}
+      </svg>
+      <svg className="carrot-plant" viewBox="136 16 128 204" preserveAspectRatio="xMidYMax meet">
       <g className="carrot-fronds">
         {FRONDS.map(([c1, c2, end], i) => {
           // Pinnate leaflets: pairs that grow forward out of the stem, getting smaller toward the tip.
@@ -96,10 +109,6 @@ export function CarrotScene() {
           )
         })}
       </g>
-      <path d={SOIL_EDGE} fill="#332C1A" />
-      {SPECKS.map(([x, y, r], i) => (
-        <circle key={i} cx={x} cy={y} r={r} fill={i % 3 ? '#5C4A2E' : '#7A6341'} />
-      ))}
       <path d="M185 108 C185 102 215 102 215 108 C215 140 207 178 200 216 C193 178 185 140 185 108 Z" fill="#E8894A" />
       <path d="M200 105 C208 105 213 106 214 109" stroke="#F3A66B" strokeWidth="3" strokeLinecap="round" fill="none" />
       {[
@@ -111,6 +120,7 @@ export function CarrotScene() {
       ].map(([x1, y, x2], i) => (
         <path key={i} d={`M${x1} ${y} L${x2} ${y + 1}`} stroke="#C46A34" strokeWidth="2" strokeLinecap="round" />
       ))}
-    </svg>
+      </svg>
+    </div>
   )
 }

@@ -1,5 +1,5 @@
 /*
- * D: Camera / scan and confirm. Both the Home "Scan Ingredient" card and the raised toolbar button open this screen.
+ * D: Camera / scan and confirm. Both the Home "Scan Item" card and the raised toolbar button open this screen.
  * Flow: live camera (or upload) → barcode (if the browser can read one) → OpenRouter vision identification
  * → "We found: … Is this correct?" → Confirm starts the analysis and opens Results.
  */

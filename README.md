@@ -78,7 +78,7 @@ The model never decides a verdict. If OpenRouter isn't configured or fails, the 
 1. Open the app. The landing screen shows the logo, the slogan, a **Continue** button and the carrot illustration.
 2. Tap **Continue**. On a first visit you land on the **Preferences** hub; afterwards Continue goes straight to Home.
 3. In **Allergies & Diets**, pick an allergy (for example *Tree nuts*) and a nutrition goal (*Lower added sugar*). Go back, open **Environmental Priorities** and pick *Reduced deforestation risk*. Tap **Save Preferences & Start Scanning**.
-4. Tap the big **Scan Ingredient** card or the raised camera button. Photograph a product, or tap **Barcode or name** and enter `3017620422003` (a real Open Food Facts product).
+4. Tap the big **Scan Item** card or the raised camera button. Photograph a product, or tap **Barcode or name** and enter `3017620422003` (a real Open Food Facts product).
 5. Confirm the product ("We found: … Is this correct?"). The tree grows while root’d checks Open Food Facts and openFDA, then settles.
 6. Tap the summary card to open the detailed breakdown. Tap any rating to see its evidence and **View original source**.
 7. Go Home: the scan appears under **Recent Scans**. Check **Insights** for alignment, values and milestones.
